@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>今日のおみくじ</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: sans-serif;
+      background: linear-gradient(135deg, #fff8e8, #f9dfc7);
+      color: #3b2420;
+      overflow-x: hidden;
+    }
+
+    .app {
+      width: 100%;
+      max-width: 480px;
+      min-height: 100vh;
+      margin: 0 auto;
+      padding: 35px 18px 40px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .shrine {
+      font-size: 45px;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 32px;
+      letter-spacing: 4px;
+      color: #8e1d1d;
+    }
+
+    .subtitle {
+      color: #76534a;
+      font-size: 14px;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.92);
+      border-radius: 28px;
+      padding: 25px 18px 22px;
+      box-shadow: 0 15px 40px rgba(90, 45, 20, 0.15);
+    }
+
+    .fortune-label {
+      font-size: 13px;
+      color: #8a7169;
+    }
+
+    #fortune {
+      font-size: 58px;
+      font-weight: bold;
+      color: #b21f1f;
+      text-align: center;
+      margin: 8px 0 12px;
+      transition: transform 0.3s ease;
+    }
+
+    #fortune.show {
+      transform: scale(1.12);
+    }
+
+    #fortune.daikichi {
+      color: #d99a00;
+      text-shadow:
+        0 0 5px #fff,
+        0 0 15px #ffd700,
+        0 0 30px #ffb700;
+    }
+
+    #message {
+      text-align: center;
+      font-size: 15px;
+      line-height: 1.8;
+      margin-bottom: 22px;
+    }
+
+    .details {
+      display: none;
+      animation: fadeIn 0.5s ease;
+    }
+
+    .detail {
+      display: flex;
+      align-items: center;
+      background: #fff8f2;
+      border: 1px solid #f1ddd1;
+      border-radius: 15px;
+      padding: 14px 12px;
+      margin: 9px 0;
+      font-size: 14px;
+    }
+
+    .icon {
+      font-size: 23px;
+      width: 38px;
+    }
+
+    .detail-text {
+      flex: 1;
+    }
+
+    .detail-title {
+      font-weight: bold;
+      color: #8e1d1d;
+      display: block;
+      margin-bottom: 3px;
+    }
+
+    #drawButton {
+      width: 100%;
+      border: none;
+      border-radius: 18px;
+      padding: 17px;
+      background: linear-gradient(135deg, #b51f1f, #7d1111);
+      color: white;
+      font-size: 18px;
+      font-weight: bold;
+      letter-spacing: 2px;
+      box-shadow: 0 7px 15px rgba(125, 17, 17, 0.25);
+      cursor: pointer;
+    }
+
+    #drawButton:active {
+      transform: scale(0.96);
+    }
+
+    .footer {
+      text-align: center;
+      margin-top: 25px;
+      font-size: 12px;
+      color: #856b62;
+    }
+
+    /* 大吉になったときの画面 */
+
+    body.lucky {
+      animation: goldenFlash 1.2s ease;
+    }
+
+    @keyframes goldenFlash {
+      0% {
+        background: #fff;
+      }
+
+      30% {
+        background: #ffe680;
+      }
+
+      60% {
+        background: #fff4b0;
+      }
+
+      100% {
+        background: linear-gradient(135deg, #fff8e8, #f9dfc7);
+      }
+    }
+
+    /* 紙吹雪 */
+
+    .confetti {
+      position: fixed;
+      top: -20px;
+      width: 10px;
+      height: 18px;
+      z-index: 999;
+      animation: fall 2.5s linear forwards;
+    }
+
+    @keyframes fall {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+      }
+
+      100% {
+        transform: translateY(110vh) rotate(720deg);
+        opacity: 0;
+      }
+    }
+
+    /* 大吉メッセージ */
+
+    #specialMessage {
+      display: none;
+      color: #c88700;
+      font-weight: bold;
+      font-size: 18px;
+      margin-bottom: 10px;
+      animation: pop 0.6s ease;
+    }
+
+    @keyframes pop {
+      0% {
+        transform: scale(0);
+      }
+
+      70% {
+        transform: scale(1.2);
+      }
+
+      100% {
+        transform: scale(1);
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(10px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="app">
+
+    <header class="header">
+      <div class="shrine">⛩️</div>
+
+      <h1>今日のおみくじ</h1>
+
+      <p class="subtitle">
+        あなたの今日の運勢は？
+      </p>
+    </header>
+
+
+    <section class="card">
+
+      <div class="fortune-label">
+        今日の運勢
+      </div>
+
+      <div id="fortune">
+        ？？？
+      </div>
+
+      <div id="specialMessage">
+        ✨ おめでとう！最高の運勢です！ ✨
+      </div>
+
+      <p id="message">
+        心を落ち着けて<br>
+        おみくじを引いてください
+      </p>
+
+
+      <div class="details" id="details">
+
+        <div class="detail">
+          <div class="icon">❤️</div>
+          <div class="detail-text">
+            <span class="detail-title">恋愛運</span>
+            <span id="love"></span>
+          </div>
+        </div>
+
+        <div class="detail">
+          <div class="icon">📚</div>
+          <div class="detail-text">
+            <span class="detail-title">勉強運</span>
+            <span id="study"></span>
+          </div>
+        </div>
+
+        <div class="detail">
+          <div class="icon">💰</div>
+          <div class="detail-text">
+            <span class="detail-title">金運</span>
+            <span id="money"></span>
+          </div>
+        </div>
+
+        <div class="detail">
+          <div class="icon">🍀</div>
+          <div class="detail-text">
+            <span class="detail-title">ラッキーアイテム</span>
+            <span id="item"></span>
+          </div>
+        </div>
+
+        <div class="detail">
+          <div class="icon">🎨</div>
+          <div class="detail-text">
+            <span class="detail-title">ラッキーカラー</span>
+            <span id="color"></span>
+          </div>
+        </div>
+
+      </div>
+
+
+      <button id="drawButton">
+        🎋 おみくじを引く
+      </button>
+
+    </section>
+
+
+    <div class="footer">
+      今日も素敵な一日になりますように 🌸
+    </div>
+
+  </main>
+
+
+  <script>
+
+    const fortunes = [
+
+      {
+        name: "大吉",
+        message: "最高の運勢！今日は思い切って行動してみよう！",
+        love: "最高！勇気を出して話しかけると良いことが。",
+        study: "絶好調！集中力が高まりそう。",
+        money: "思わぬラッキーがあるかも。",
+        item: "赤いペン",
+        color: "赤"
+      },
+
+      {
+        name: "中吉",
+        message: "とても良い一日。焦らず自分のペースで！",
+        love: "笑顔を大切にすると運気アップ。",
+        study: "コツコツ続ければ結果につながる。",
+        money: "無駄遣いをしなければ安定。",
+        item: "腕時計",
+        color: "青"
+      },
+
+      {
+        name: "小吉",
+        message: "小さな幸せが見つかる日。",
+        love: "友達から恋が始まるかも。",
+        study: "少しずつ努力すれば大丈夫。",
+        money: "節約すると吉。",
+        item: "お気に入りの音楽",
+        color: "黄色"
+      },
+
+      {
+        name: "吉",
+        message: "安定した運勢。いつも通り努力を続けよう！",
+        love: "自然体でいることが一番。",
+        study: "復習をすると理解が深まりそう。",
+        money: "計画的に使えば問題なし。",
+        item: "ノート",
+        color: "緑"
+      },
+
+      {
+        name: "凶",
+        message: "今日は慎重に。無理をせずゆっくり過ごそう。",
+        love: "焦らず相手の気持ちを考えてみよう。",
+        study: "休憩をしっかり取ろう。",
+        money: "今日は大きな買い物を控えよう。",
+        item: "ハンカチ",
+        color: "白"
+      }
+
+    ];
+
+
+    const fortune =
+      document.getElementById("fortune");
+
+    const message =
+      document.getElementById("message");
+
+    const details =
+      document.getElementById("details");
+
+    const love =
+      document.getElementById("love");
+
+    const study =
+      document.getElementById("study");
+
+    const money =
+      document.getElementById("money");
+
+    const item =
+      document.getElementById("item");
+
+    const color =
+      document.getElementById("color");
+
+    const specialMessage =
+      document.getElementById("specialMessage");
+
+    const drawButton =
+      document.getElementById("drawButton");
+
+
+    drawButton.addEventListener("click", function() {
+
+      const randomIndex =
+        Math.floor(Math.random() * fortunes.length);
+
+      const result =
+        fortunes[randomIndex];
+
+
+      fortune.classList.remove("show");
+      fortune.classList.remove("daikichi");
+
+      document.body.classList.remove("lucky");
+
+      specialMessage.style.display = "none";
+
+
+      setTimeout(function() {
+
+        fortune.textContent = result.name;
+
+        message.textContent = result.message;
+
+        love.textContent = result.love;
+        study.textContent = result.study;
+        money.textContent = result.money;
+        item.textContent = result.item;
+        color.textContent = result.color;
+
+        details.style.display = "block";
+
+        fortune.classList.add("show");
+
+
+        /* 大吉だったら豪華演出！ */
+
+        if (result.name === "大吉") {
+
+          fortune.classList.add("daikichi");
+
+          specialMessage.style.display = "block";
+
+          document.body.classList.add("lucky");
+
+          createConfetti();
+
+        }
+
+      }, 150);
+
+    });
+
+
+    /* 紙吹雪を作る */
+
+    function createConfetti() {
+
+      const colors = [
+        "#FFD700",
+        "#FF4D4D",
+        "#4CAF50",
+        "#2196F3",
+        "#FF69B4",
+        "#FFFFFF"
+      ];
+
+
+      for (let i = 0; i < 80; i++) {
+
+        const confetti =
+          document.createElement("div");
+
+        confetti.classList.add("confetti");
+
+        confetti.style.left =
+          Math.random() * 100 + "vw";
+
+        confetti.style.backgroundColor =
+          colors[
+            Math.floor(Math.random() * colors.length)
+          ];
+
+        confetti.style.animationDuration =
+          (1.5 + Math.random() * 2) + "s";
+
+        confetti.style.transform =
+          `rotate(${Math.random() * 360}deg)`;
+
+        document.body.appendChild(confetti);
+
+
+        setTimeout(function() {
+          confetti.remove();
+        }, 4000);
+
+      }
+
+    }
+
+  </script>
+
+</body>
+</html>
