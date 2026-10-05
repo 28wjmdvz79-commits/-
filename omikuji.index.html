@@ -1,0 +1,1625 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
+
+  <meta
+    name="theme-color"
+    content="#f5efe3"
+  >
+
+  <title>結び - 今日のおみくじ</title>
+
+  <style>
+
+    /* =========================
+       基本
+    ========================= */
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+
+      min-height: 100vh;
+
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Hiragino Kaku Gothic ProN",
+        "Yu Gothic",
+        "Noto Sans JP",
+        sans-serif;
+
+      color: #292522;
+
+      background:
+        radial-gradient(
+          circle at 50% -10%,
+          #fffaf0 0%,
+          #f5efe3 45%,
+          #e8dfd1 100%
+        );
+
+      overflow-x: hidden;
+    }
+
+
+    /* =========================
+       アプリ
+    ========================= */
+
+    .app {
+      width: 100%;
+
+      max-width: 480px;
+
+      min-height: 100vh;
+
+      margin: 0 auto;
+
+      padding:
+        24px
+        18px
+        35px;
+
+      position: relative;
+    }
+
+
+    /* =========================
+       上部
+    ========================= */
+
+    .top {
+      display: flex;
+
+      justify-content:
+        space-between;
+
+      align-items: center;
+
+      margin-bottom: 28px;
+    }
+
+
+    .brand {
+      display: flex;
+
+      align-items: center;
+
+      gap: 9px;
+    }
+
+
+    .brand-mark {
+      width: 36px;
+
+      height: 36px;
+
+      border-radius: 50%;
+
+      display: flex;
+
+      justify-content: center;
+
+      align-items: center;
+
+      background: #9d2424;
+
+      color: #fff;
+
+      font-size: 18px;
+
+      box-shadow:
+        0 5px 12px
+        rgba(120, 25, 25, 0.2);
+    }
+
+
+    .brand-name {
+      font-size: 15px;
+
+      font-weight: bold;
+
+      letter-spacing: 3px;
+
+      color: #6e2424;
+    }
+
+
+    .date {
+      font-size: 11px;
+
+      color: #897d70;
+
+      letter-spacing: 1px;
+    }
+
+
+    /* =========================
+       タイトル
+    ========================= */
+
+    .hero {
+      text-align: center;
+
+      margin-bottom: 25px;
+    }
+
+
+    .hero-small {
+      font-size: 12px;
+
+      color: #9a806d;
+
+      letter-spacing: 4px;
+
+      margin-bottom: 8px;
+    }
+
+
+    h1 {
+      margin: 0;
+
+      font-family:
+        "Hiragino Mincho ProN",
+        "Yu Mincho",
+        serif;
+
+      font-size: 36px;
+
+      font-weight: 600;
+
+      letter-spacing: 8px;
+
+      color: #292522;
+    }
+
+
+    .hero-line {
+      width: 55px;
+
+      height: 2px;
+
+      margin:
+        15px
+        auto
+        0;
+
+      background:
+        linear-gradient(
+          90deg,
+          transparent,
+          #b88b45,
+          transparent
+        );
+    }
+
+
+    /* =========================
+       おみくじカード
+    ========================= */
+
+    .omikuji-card {
+
+      position: relative;
+
+      background:
+        rgba(255, 253, 248, 0.96);
+
+      border:
+        1px solid
+        rgba(170, 145, 110, 0.25);
+
+      border-radius: 24px;
+
+      padding:
+        30px
+        20px
+        22px;
+
+      box-shadow:
+        0 20px 50px
+        rgba(65, 45, 25, 0.12);
+
+      overflow: hidden;
+    }
+
+
+    /* 和紙っぽい飾り */
+
+    .omikuji-card::before {
+      content: "";
+
+      position: absolute;
+
+      width: 150px;
+
+      height: 150px;
+
+      border-radius: 50%;
+
+      background:
+        rgba(157, 36, 36, 0.035);
+
+      top: -75px;
+
+      right: -60px;
+    }
+
+
+    .omikuji-card::after {
+      content: "";
+
+      position: absolute;
+
+      width: 120px;
+
+      height: 120px;
+
+      border-radius: 50%;
+
+      background:
+        rgba(184, 139, 69, 0.05);
+
+      bottom: -65px;
+
+      left: -55px;
+    }
+
+
+    .result-label {
+      text-align: center;
+
+      font-size: 11px;
+
+      color: #9a806d;
+
+      letter-spacing: 3px;
+
+      position: relative;
+
+      z-index: 1;
+    }
+
+
+    /* =========================
+       運勢
+    ========================= */
+
+    #fortune {
+      position: relative;
+
+      z-index: 1;
+
+      text-align: center;
+
+      margin:
+        12px
+        0
+        10px;
+
+      font-family:
+        "Hiragino Mincho ProN",
+        "Yu Mincho",
+        serif;
+
+      font-size: 64px;
+
+      font-weight: 600;
+
+      letter-spacing: 6px;
+
+      color: #982424;
+
+      transition:
+        transform 0.4s ease,
+        color 0.4s ease;
+    }
+
+
+    #fortune.show {
+      animation:
+        fortuneAppear
+        0.6s ease;
+    }
+
+
+    @keyframes fortuneAppear {
+
+      0% {
+        opacity: 0;
+
+        transform:
+          translateY(10px)
+          scale(0.8);
+      }
+
+      70% {
+        transform:
+          translateY(0)
+          scale(1.08);
+      }
+
+      100% {
+        opacity: 1;
+
+        transform:
+          translateY(0)
+          scale(1);
+      }
+
+    }
+
+
+    /* =========================
+       大吉
+    ========================= */
+
+    #fortune.daikichi {
+
+      color: #b17a12;
+
+      text-shadow:
+        0 1px 0 #fff,
+        0 0 10px
+        rgba(220, 170, 55, 0.45);
+    }
+
+
+    #specialMessage {
+
+      display: none;
+
+      position: relative;
+
+      z-index: 1;
+
+      text-align: center;
+
+      color: #ad7818;
+
+      font-size: 14px;
+
+      font-weight: bold;
+
+      letter-spacing: 2px;
+
+      margin-bottom: 10px;
+
+      animation:
+        specialPop
+        0.6s ease;
+    }
+
+
+    @keyframes specialPop {
+
+      0% {
+        opacity: 0;
+
+        transform:
+          scale(0.6);
+      }
+
+      70% {
+        transform:
+          scale(1.08);
+      }
+
+      100% {
+        opacity: 1;
+
+        transform:
+          scale(1);
+      }
+
+    }
+
+
+    /* =========================
+       メッセージ
+    ========================= */
+
+    #message {
+
+      position: relative;
+
+      z-index: 1;
+
+      text-align: center;
+
+      color: #675d55;
+
+      font-size: 14px;
+
+      line-height: 1.9;
+
+      min-height: 54px;
+
+      margin:
+        0
+        5px
+        25px;
+    }
+
+
+    /* =========================
+       運勢詳細
+    ========================= */
+
+    .details {
+
+      display: none;
+
+      position: relative;
+
+      z-index: 1;
+
+      animation:
+        fadeUp
+        0.5s ease;
+    }
+
+
+    @keyframes fadeUp {
+
+      from {
+        opacity: 0;
+
+        transform:
+          translateY(12px);
+      }
+
+      to {
+        opacity: 1;
+
+        transform:
+          translateY(0);
+      }
+
+    }
+
+
+    .detail {
+
+      display: flex;
+
+      align-items: center;
+
+      padding:
+        13px
+        12px;
+
+      margin:
+        7px
+        0;
+
+      border-radius: 14px;
+
+      background: #f8f4ec;
+
+      border:
+        1px solid
+        #eee5d7;
+    }
+
+
+    .icon {
+
+      width: 38px;
+
+      height: 38px;
+
+      border-radius: 11px;
+
+      display: flex;
+
+      justify-content: center;
+
+      align-items: center;
+
+      background: #fffdf8;
+
+      font-size: 18px;
+
+      margin-right: 11px;
+    }
+
+
+    .detail-text {
+      flex: 1;
+
+      min-width: 0;
+    }
+
+
+    .detail-title {
+
+      display: block;
+
+      font-size: 11px;
+
+      color: #9a806d;
+
+      letter-spacing: 1px;
+
+      margin-bottom: 3px;
+    }
+
+
+    .detail-value {
+
+      display: block;
+
+      font-size: 13px;
+
+      line-height: 1.5;
+
+      color: #413a35;
+    }
+
+
+    /* =========================
+       ボタン
+    ========================= */
+
+    button {
+
+      width: 100%;
+
+      border: none;
+
+      cursor: pointer;
+
+      font-family: inherit;
+
+      font-weight: bold;
+    }
+
+
+    #drawButton {
+
+      position: relative;
+
+      z-index: 2;
+
+      margin-top: 20px;
+
+      padding: 17px;
+
+      border-radius: 16px;
+
+      background:
+        linear-gradient(
+          135deg,
+          #a32929,
+          #781c1c
+        );
+
+      color: white;
+
+      font-size: 16px;
+
+      letter-spacing: 2px;
+
+      box-shadow:
+        0 8px 18px
+        rgba(120, 28, 28, 0.22);
+
+      transition:
+        transform 0.15s ease,
+        box-shadow 0.15s ease;
+    }
+
+
+    #drawButton:active {
+
+      transform:
+        scale(0.97);
+
+      box-shadow:
+        0 4px 10px
+        rgba(120, 28, 28, 0.18);
+    }
+
+
+    #drawButton:disabled {
+
+      background: #aaa39b;
+
+      box-shadow: none;
+
+      cursor: not-allowed;
+    }
+
+
+    #shareButton {
+
+      position: relative;
+
+      z-index: 2;
+
+      margin-top: 9px;
+
+      padding: 14px;
+
+      border-radius: 16px;
+
+      background: #292522;
+
+      color: #fff;
+
+      font-size: 14px;
+
+      letter-spacing: 1px;
+
+      transition:
+        transform 0.15s ease;
+    }
+
+
+    #shareButton:active {
+
+      transform:
+        scale(0.97);
+    }
+
+
+    #shareButton:disabled {
+
+      opacity: 0.25;
+
+      cursor: not-allowed;
+    }
+
+
+    /* =========================
+       下部
+    ========================= */
+
+    .footer {
+
+      text-align: center;
+
+      margin-top: 25px;
+
+      color: #9a8d80;
+
+      font-size: 11px;
+
+      letter-spacing: 1px;
+    }
+
+
+    .footer::before {
+
+      content: "— ";
+
+      color: #b88b45;
+    }
+
+
+    .footer::after {
+
+      content: " —";
+
+      color: #b88b45;
+    }
+
+
+    /* =========================
+       大吉演出
+    ========================= */
+
+    body.lucky {
+
+      animation:
+        goldenFlash
+        1.2s ease;
+    }
+
+
+    @keyframes goldenFlash {
+
+      0% {
+        background:
+          #fff;
+      }
+
+      25% {
+        background:
+          #fff2bd;
+      }
+
+      55% {
+        background:
+          #f9e7a1;
+      }
+
+      100% {
+        background:
+          radial-gradient(
+            circle at 50% -10%,
+            #fffaf0 0%,
+            #f5efe3 45%,
+            #e8dfd1 100%
+          );
+      }
+
+    }
+
+
+    /* =========================
+       紙吹雪
+    ========================= */
+
+    .confetti {
+
+      position: fixed;
+
+      top: -20px;
+
+      width: 7px;
+
+      height: 15px;
+
+      border-radius: 2px;
+
+      z-index: 9999;
+
+      pointer-events: none;
+
+      animation:
+        fall
+        2.7s
+        linear
+        forwards;
+    }
+
+
+    @keyframes fall {
+
+      0% {
+
+        transform:
+          translateY(0)
+          rotate(0deg);
+
+        opacity: 1;
+      }
+
+      100% {
+
+        transform:
+          translateY(110vh)
+          rotate(720deg);
+
+        opacity: 0;
+      }
+
+    }
+
+
+    /* =========================
+       小さいスマホ
+    ========================= */
+
+    @media (max-width: 360px) {
+
+      .app {
+
+        padding:
+          20px
+          12px
+          30px;
+      }
+
+
+      h1 {
+
+        font-size: 30px;
+
+        letter-spacing: 6px;
+      }
+
+
+      #fortune {
+
+        font-size: 54px;
+      }
+
+    }
+
+  </style>
+
+</head>
+
+
+<body>
+
+
+  <main class="app">
+
+
+    <!-- 上部 -->
+
+    <div class="top">
+
+      <div class="brand">
+
+        <div class="brand-mark">
+          結
+        </div>
+
+        <div class="brand-name">
+          MUSUBI
+        </div>
+
+      </div>
+
+
+      <div class="date">
+        TODAY
+      </div>
+
+    </div>
+
+
+    <!-- タイトル -->
+
+    <header class="hero">
+
+      <div class="hero-small">
+        今日の運勢
+      </div>
+
+      <h1>
+        おみくじ
+      </h1>
+
+      <div class="hero-line"></div>
+
+    </header>
+
+
+    <!-- メイン -->
+
+    <section class="omikuji-card">
+
+
+      <div class="result-label">
+        あなたの運勢
+      </div>
+
+
+      <div id="fortune">
+        ？？？
+      </div>
+
+
+      <div id="specialMessage">
+        ✦ おめでとうございます ✦
+      </div>
+
+
+      <p id="message">
+        心を落ち着けて<br>
+        おみくじを引いてください
+      </p>
+
+
+      <!-- 詳細 -->
+
+      <div
+        class="details"
+        id="details"
+      >
+
+
+        <div class="detail">
+
+          <div class="icon">
+            ♡
+          </div>
+
+          <div class="detail-text">
+
+            <span class="detail-title">
+              恋愛運
+            </span>
+
+            <span
+              class="detail-value"
+              id="love"
+            ></span>
+
+          </div>
+
+        </div>
+
+
+        <div class="detail">
+
+          <div class="icon">
+            文
+          </div>
+
+          <div class="detail-text">
+
+            <span class="detail-title">
+              勉強運
+            </span>
+
+            <span
+              class="detail-value"
+              id="study"
+            ></span>
+
+          </div>
+
+        </div>
+
+
+        <div class="detail">
+
+          <div class="icon">
+            ¥
+          </div>
+
+          <div class="detail-text">
+
+            <span class="detail-title">
+              金運
+            </span>
+
+            <span
+              class="detail-value"
+              id="money"
+            ></span>
+
+          </div>
+
+        </div>
+
+
+        <div class="detail">
+
+          <div class="icon">
+            四
+          </div>
+
+          <div class="detail-text">
+
+            <span class="detail-title">
+              ラッキーアイテム
+            </span>
+
+            <span
+              class="detail-value"
+              id="item"
+            ></span>
+
+          </div>
+
+        </div>
+
+
+        <div class="detail">
+
+          <div class="icon">
+            色
+          </div>
+
+          <div class="detail-text">
+
+            <span class="detail-title">
+              ラッキーカラー
+            </span>
+
+            <span
+              class="detail-value"
+              id="color"
+            ></span>
+
+          </div>
+
+        </div>
+
+
+      </div>
+
+
+      <!-- ボタン -->
+
+      <button id="drawButton">
+        おみくじを引く
+      </button>
+
+
+      <button
+        id="shareButton"
+        disabled
+      >
+        ↗ 結果をシェア
+      </button>
+
+
+    </section>
+
+
+    <div class="footer">
+      今日も、良いご縁がありますように
+    </div>
+
+
+  </main>
+
+
+  <script>
+
+
+    /* =========================
+       おみくじデータ
+    ========================= */
+
+    const fortunes = [
+
+
+      {
+        name: "大吉",
+
+        message:
+          "運気上昇中。思い切った一歩が、良いご縁を引き寄せそうです。",
+
+        love:
+          "最高。素直な気持ちを伝えると、距離が縮まりそう。",
+
+        study:
+          "絶好調。集中力が高まり、実力を発揮できそう。",
+
+        money:
+          "思わぬ嬉しいことがありそう。使う前に一度考えるとさらに吉。",
+
+        item:
+          "赤いペン",
+
+        color:
+          "朱色"
+      },
+
+
+      {
+        name: "中吉",
+
+        message:
+          "穏やかで良い一日。焦らず、自分のペースを大切に。",
+
+        love:
+          "笑顔が幸運の鍵。自然体でいることが大切。",
+
+        study:
+          "積み重ねが力になる日。復習がおすすめ。",
+
+        money:
+          "安定。必要なものを見極めて使うと吉。",
+
+        item:
+          "腕時計",
+
+        color:
+          "藍色"
+      },
+
+
+      {
+        name: "小吉",
+
+        message:
+          "小さな幸せに気づける日。身近な人との時間を大切に。",
+
+        love:
+          "思いがけない会話から、良いご縁が生まれそう。",
+
+        study:
+          "少しずつで大丈夫。休憩をはさみながら進めよう。",
+
+        money:
+          "節約が運気アップにつながります。",
+
+        item:
+          "お気に入りの音楽",
+
+        color:
+          "若草色"
+      },
+
+
+      {
+        name: "吉",
+
+        message:
+          "落ち着いた運勢。いつも通り丁寧に過ごしましょう。",
+
+        love:
+          "相手の話をよく聞くと、良い関係が築けそう。",
+
+        study:
+          "基礎を大切にすると理解が深まりそう。",
+
+        money:
+          "計画的に使えば安定。",
+
+        item:
+          "ノート",
+
+        color:
+          "白"
+      },
+
+
+      {
+        name: "凶",
+
+        message:
+          "今日は少し慎重に。無理をせず、心と体を休めましょう。",
+
+        love:
+          "焦らないことが大切。今日は自分を大切に。",
+
+        study:
+          "詰め込みすぎず、まずは一つずつ。",
+
+        money:
+          "大きな買い物は少し待つのがおすすめ。",
+
+        item:
+          "ハンカチ",
+
+        color:
+          "灰色"
+      }
+
+    ];
+
+
+    /* =========================
+       要素
+    ========================= */
+
+    const fortune =
+      document.getElementById(
+        "fortune"
+      );
+
+    const message =
+      document.getElementById(
+        "message"
+      );
+
+    const details =
+      document.getElementById(
+        "details"
+      );
+
+    const love =
+      document.getElementById(
+        "love"
+      );
+
+    const study =
+      document.getElementById(
+        "study"
+      );
+
+    const money =
+      document.getElementById(
+        "money"
+      );
+
+    const item =
+      document.getElementById(
+        "item"
+      );
+
+    const color =
+      document.getElementById(
+        "color"
+      );
+
+    const specialMessage =
+      document.getElementById(
+        "specialMessage"
+      );
+
+    const drawButton =
+      document.getElementById(
+        "drawButton"
+      );
+
+    const shareButton =
+      document.getElementById(
+        "shareButton"
+      );
+
+
+    /* =========================
+       今日の日付
+    ========================= */
+
+    function getToday() {
+
+      const today =
+        new Date();
+
+      return (
+        today.getFullYear() +
+        "-" +
+        (today.getMonth() + 1) +
+        "-" +
+        today.getDate()
+      );
+
+    }
+
+
+    /* =========================
+       1日1回チェック
+    ========================= */
+
+    const lastDrawDate =
+      localStorage.getItem(
+        "omikujiDate"
+      );
+
+
+    if (
+      lastDrawDate ===
+      getToday()
+    ) {
+
+      drawButton.disabled =
+        true;
+
+      drawButton.textContent =
+        "本日の運勢は確認済み";
+
+      message.textContent =
+        "また明日、ここでお待ちしています。";
+
+    }
+
+
+    /* =========================
+       おみくじ
+    ========================= */
+
+    drawButton.addEventListener(
+      "click",
+      function() {
+
+
+        if (
+          localStorage.getItem(
+            "omikujiDate"
+          ) === getToday()
+        ) {
+
+          return;
+
+        }
+
+
+        const randomIndex =
+          Math.floor(
+            Math.random() *
+            fortunes.length
+          );
+
+
+        const result =
+          fortunes[randomIndex];
+
+
+        fortune.classList.remove(
+          "show"
+        );
+
+        fortune.classList.remove(
+          "daikichi"
+        );
+
+        document.body.classList.remove(
+          "lucky"
+        );
+
+        specialMessage.style.display =
+          "none";
+
+
+        setTimeout(
+          function() {
+
+
+            fortune.textContent =
+              result.name;
+
+
+            message.textContent =
+              result.message;
+
+
+            love.textContent =
+              result.love;
+
+
+            study.textContent =
+              result.study;
+
+
+            money.textContent =
+              result.money;
+
+
+            item.textContent =
+              result.item;
+
+
+            color.textContent =
+              result.color;
+
+
+            details.style.display =
+              "block";
+
+
+            fortune.classList.add(
+              "show"
+            );
+
+
+            /* 大吉 */
+
+            if (
+              result.name ===
+              "大吉"
+            ) {
+
+              fortune.classList.add(
+                "daikichi"
+              );
+
+
+              specialMessage.style.display =
+                "block";
+
+
+              document.body.classList.add(
+                "lucky"
+              );
+
+
+              createConfetti();
+
+            }
+
+
+            /* 保存 */
+
+            localStorage.setItem(
+              "omikujiDate",
+              getToday()
+            );
+
+
+            /* ボタン */
+
+            drawButton.disabled =
+              true;
+
+            drawButton.textContent =
+              "本日の運勢は確認済み";
+
+
+            shareButton.disabled =
+              false;
+
+
+          },
+          150
+        );
+
+      }
+    );
+
+
+    /* =========================
+       紙吹雪
+    ========================= */
+
+    function createConfetti() {
+
+
+      const colors = [
+
+        "#d4af37",
+        "#a32929",
+        "#1f3b4d",
+        "#f4e4bc",
+        "#ffffff"
+
+      ];
+
+
+      for (
+        let i = 0;
+        i < 80;
+        i++
+      ) {
+
+
+        const confetti =
+          document.createElement(
+            "div"
+          );
+
+
+        confetti.classList.add(
+          "confetti"
+        );
+
+
+        confetti.style.left =
+          Math.random() *
+          100 +
+          "vw";
+
+
+        confetti.style.backgroundColor =
+          colors[
+            Math.floor(
+              Math.random() *
+              colors.length
+            )
+          ];
+
+
+        confetti.style.animationDuration =
+          (
+            1.5 +
+            Math.random() * 2
+          ) +
+          "s";
+
+
+        document.body.appendChild(
+          confetti
+        );
+
+
+        setTimeout(
+          function() {
+
+            confetti.remove();
+
+          },
+          4000
+        );
+
+      }
+
+    }
+
+
+    /* =========================
+       シェア
+    ========================= */
+
+    shareButton.addEventListener(
+      "click",
+      async function() {
+
+
+        const shareText =
+
+          "⛩️ 今日のおみくじ\n\n" +
+
+          "「" +
+          fortune.textContent +
+          "」\n\n" +
+
+          "♡ 恋愛運\n" +
+          love.textContent +
+          "\n\n" +
+
+          "文 勉強運\n" +
+          study.textContent +
+          "\n\n" +
+
+          "¥ 金運\n" +
+          money.textContent +
+          "\n\n" +
+
+          "四 ラッキーアイテム\n" +
+          item.textContent +
+          "\n\n" +
+
+          "色 ラッキーカラー\n" +
+          color.textContent +
+          "\n\n" +
+
+          "今日も、良いご縁がありますように。\n" +
+          "#おみくじ #今日の運勢";
+
+
+        if (
+          navigator.share
+        ) {
+
+
+          try {
+
+            await navigator.share({
+
+              title:
+                "今日のおみくじ",
+
+              text:
+                shareText
+
+            });
+
+          }
+
+          catch (error) {
+
+            /* キャンセル時は何もしない */
+
+          }
+
+
+        }
+
+        else {
+
+
+          try {
+
+            await navigator.clipboard.writeText(
+              shareText
+            );
+
+
+            alert(
+              "結果をコピーしました！"
+            );
+
+          }
+
+          catch (error) {
+
+            alert(
+              "結果をコピーできませんでした。"
+            );
+
+          }
+
+        }
+
+      }
+    );
+
+
+  </script>
+
+
+</body>
+</html>
